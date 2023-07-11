@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import * as S from './style';
 
-export default function App() {
+export default function SendingImgs() {
   const [src, setSrc] = useState('');
   const typefileinput = useRef(null);
   useEffect(e => {
     document.title = "copy the clipboard";
   }, []);
-  return <S.App onPaste={e => { //붙여넣기 시
+  return <S.SendingImgs onPaste={e => { //붙여넣기 시
     const items = e.clipboardData.items[0];
     if (items.type.indexOf('image') === 0) {
       let blob = items.getAsFile();
@@ -32,5 +32,5 @@ export default function App() {
         reader.readAsDataURL(input.files[0]);
       }
     }} />
-  </S.App>;
+  </S.SendingImgs>;
 }
