@@ -6,4 +6,8 @@ export const App = styled.div`
     cursor: pointer;
     /* height: 1px;  */
   }
+  img{
+    object-fit: scale-down;
+    width: 500px;
+  }
 `

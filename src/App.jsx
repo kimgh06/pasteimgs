@@ -31,6 +31,6 @@ export default function App() {
         console.log(input.files[0])
         reader.readAsDataURL(input.files[0]);
       }
-    }}></input>
+    }} />
   </S.App>;
 }
