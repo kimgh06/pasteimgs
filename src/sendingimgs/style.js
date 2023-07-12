@@ -8,6 +8,6 @@ export const SendingImgs = styled.div`
   }
   img{
     object-fit: scale-down;
-    width: 500px;
+    max-width: 500px;
   }
 `
