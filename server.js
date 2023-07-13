@@ -71,7 +71,7 @@ app.post('/chat/gettokens', (rq, rs) => {
             id: rst[0].id,
             accessToken: accessToken,
             refreshToken: refreshToken,
-            accessExpireTime: Math.floor(time) + 30 //현재 시각하고 30분 이상 차이 날시 재로그인 요청 보내도록 하기
+            accessExpireTime: Math.floor(time) + 3 //현재 시각하고 30분 이상 차이 날시 재로그인 요청 보내도록 하기
           });
         });
       } else {
@@ -125,7 +125,7 @@ function checkAuthoriztion(id, accessToken, callback) {
     connection.query(sql, (err, rst, fld) => {
       if (err) throw err;
       const time = new Date().getTime() / 1000 / 60;
-      if (time - rst[0].registedTime >= 30) {
+      if (time - rst[0].registedTime >= 3) {
         callback(false);
       } else {
         callback(true);
@@ -139,7 +139,6 @@ function checkAuthoriztion(id, accessToken, callback) {
 app.post('/chat/checkaccesstoken', (rq, rs) => {
   const body = rq.body;
   const headers = rq.headers.authorization.substr(7);
-  console.log(headers, body.id);
   checkAuthoriztion(body.id, headers, e => {
     rs.send(e);
   });
@@ -175,11 +174,14 @@ app.post('/chat/newroom', (rq, rs) => {
       if (err) throw err;
       if (rst[0] !== undefined) {
         rs.send({ message: "이미 존재하는 방 이름입니다." });
+        return;
       } else {
-        sql = `insert into chatrommandid values(rand, '${body.roomid2make}')`;
+        sql = `insert into chatroomandid values(${rand}, '${body.roomid2make}')`;
         connection.query(sql, (err, rst, fld) => {
           if (err) throw err;
-          console.log(rst);
+          if (rst.affectedRows > 0) {
+            rs.sendStatus(201);
+          }
         })
       }
     });
