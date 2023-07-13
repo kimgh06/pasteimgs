@@ -12,9 +12,37 @@ export default function Chat(e) {
   const [areheretokens, setAreheretokens] = useState(false);
   const [roomid2make, setRoomid2make] = useState('');
   const url = "http://localhost:8888";
+  let t = Math.floor(new Date().getTime() / 1000 / 60);
+  async function refreshTokens() {
+    setAreheretokens(false);
+    const Tokens = JSON.parse(localStorage.getItem("logininfo"));
+    await axios.post(`${url}/chat/refresh`, {
+      refreshToken: Tokens.refreshToken
+    }).then(e => {
+      const d = e.data;
+      axios.defaults.headers.common['Authorization'] = `Bearer ${d.accessToken}`;
+      localStorage.setItem('logininfo', JSON.stringify({
+        id: d.id,
+        nickname: logininfo.nickname,
+        refreshToken: d.refreshToken,
+        accessExpireTime: d.accessExpireTime
+      }));
+      setAccessTokenAvailable(false);
+      setRefreshTokenAvailable(false);
+      setAreheretokens(true);
+    })
+  }
   useEffect(e => {
     document.title = 'chat';
     axios.defaults.withCredentials = true;
+  }, []);
+  useEffect(e => {
+    const expiredTime = JSON.parse(localStorage.getItem('logininfo')).accessExpireTime;
+    setInterval(() => {
+      if (t >= expiredTime) {
+        refreshTokens();
+      }
+    }, 10000);
   }, []);
   return <S.Chat>
     <form className="checkId" onSubmit={async e => {
@@ -105,6 +133,13 @@ export default function Chat(e) {
       <p>{refreshtokenAvailable ? "사용가능한 리프레시토큰입니다." : "사용 불가능한 리프레시토큰"}</p>
     </form>
 
+    <form className="refreshingTokens" onSubmit={async e => {
+      e.preventDefault();
+      refreshTokens();
+    }}>
+      <button>토큰 재발급</button>
+    </form>
+
     <form className="makeroom" onSubmit={async e => {
       e.preventDefault();
       const Tokens = JSON.parse(localStorage.getItem("logininfo"));
@@ -122,8 +157,5 @@ export default function Chat(e) {
       <button>새로운 방 추가</button>
     </form>
 
-    <form>
-
-    </form>
   </S.Chat>
 }

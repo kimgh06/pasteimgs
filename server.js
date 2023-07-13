@@ -200,3 +200,31 @@ app.post('/chat/newroom', (rq, rs) => {
     console.log(e);
   }
 });
+
+app.post('/chat/refresh', (rq, rs) => {
+  const body = rq.body;
+  let accessToken = rq.headers.authorization.substr(7);
+  let sql = `select * from tokens where accesstoken = '${accessToken}' and refreshtoken = '${body.refreshToken}'`;
+  connection.query(sql, (err, rst, fld) => {
+    if (err) throw err;
+    const time = Math.floor(new Date().getTime() / 1000 / 60); //분 단위
+    accessToken = Math.random().toString(36).substr(2, 11) + Math.random().toString(36).substr(2, 11);
+    refreshToken = Math.random().toString(36).substr(2, 11) + Math.random().toString(36).substr(2, 11);
+    if (time - rst[0].registedTime <= 3000) {
+      sql = `update tokens set accesstoken = '${accessToken}', refreshToken = '${refreshToken}', registedtime = '${time}' where id = '${rst[0].id}'`;
+      connection.query(sql, (err, rst1, fld) => {
+        if (err) throw err;
+        if (rst1.affectedRows === 1) {
+          rs.send({
+            id: rst[0].id,
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            accessExpireTime: Math.floor(time) + 3 //현재 시각하고 30분 이상 차이 날시 재로그인 요청 보내도록 하기
+          });
+        }
+      })
+    } else {
+      rs.send({ message: "refreshToken have been expired." });
+    }
+  })
+});
