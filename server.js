@@ -119,16 +119,16 @@ app.post('/chat/signup', (rq, rs) => {
   }
 });
 
-function checkAuthoriztion(id, accessToken, callback) {
+function checkAuthorizationOfAccessToken(id, accessToken, callback) {
   let sql = `select * from tokens where accessToken = '${accessToken}' and id = ${id}`;
   try {
     connection.query(sql, (err, rst, fld) => {
       if (err) throw err;
       const time = new Date().getTime() / 1000 / 60;
-      if (time - rst[0].registedTime >= 3) {
-        callback(false);
-      } else {
+      if (time - rst[0]?.registedTime < 3) {
         callback(true);
+      } else {
+        callback(false);
       }
     });
   } catch (e) {
@@ -139,50 +139,61 @@ function checkAuthoriztion(id, accessToken, callback) {
 app.post('/chat/checkaccesstoken', (rq, rs) => {
   const body = rq.body;
   const headers = rq.headers.authorization.substr(7);
-  checkAuthoriztion(body.id, headers, e => {
+  checkAuthorizationOfAccessToken(body.id, headers, e => {
     rs.send(e);
   });
 });
 
-app.post('/chat/checkrefreshtoken', (rq, rs) => {
-  const body = rq.body;
-  let sql = `select * from tokens where refreshToken = '${body.refreshToken}'`;
+function checkAuthorizationOfRefreshToken(id, refreshToken, callback) {
+  let sql = `select * from tokens where refreshToken = '${refreshToken}' and id = '${id}'`;
   try {
     connection.query(sql, (err, rst, fld) => {
       if (err) throw err;
       const time = new Date().getTime() / 1000 / 60;
-      if (time - rst[0].registedTime >= 3000 && rst[0].id === body.id) {
-        rs.send(false);
+      if (time - rst[0].registedTime >= 3000) {
+        callback(false);
       } else {
-        rs.send(true);
+        callback(true);
       }
     });
   } catch (e) {
     console.log(e);
   }
+}
+
+app.post('/chat/checkrefreshtoken', (rq, rs) => {
+  const body = rq.body;
+  checkAuthorizationOfRefreshToken(body.id, body.refreshToken, e => {
+    rs.send(e);
+  })
 });
 
 
 app.post('/chat/newroom', (rq, rs) => {
   try {
     const body = rq.body;
-    const header = rq.headers;
+    const headers = rq.headers.authorization.substr(7);
     const rand = Math.floor(Math.random() * 10000000);
-    console.log(body.roomid2make, header.authorization.substr(7), rand);
-    let sql = `select * from chatroomandid where chatroomid = ${rand} or roomname = '${body.roomid2make}'`;
-    connection.query(sql, (err, rst, fld) => {
-      if (err) throw err;
-      if (rst[0] !== undefined) {
-        rs.send({ message: "이미 존재하는 방 이름입니다." });
-        return;
+    checkAuthorizationOfAccessToken(body.id, headers, e => {
+      if (e === false) {
+        rs.send({ message: "토큰이 만료되었거나 토큰이 없습니다." })
       } else {
-        sql = `insert into chatroomandid values(${rand}, '${body.roomid2make}')`;
+        let sql = `select * from chatroomandid where chatroomid = ${rand} or roomname = '${body.roomid2make}'`;
         connection.query(sql, (err, rst, fld) => {
           if (err) throw err;
-          if (rst.affectedRows > 0) {
-            rs.sendStatus(201);
+          if (rst[0] !== undefined) {
+            rs.send({ message: "이미 존재하는 방 이름입니다." });
+            return;
+          } else {
+            sql = `insert into chatroomandid values(${rand}, '${body.roomid2make}')`;
+            connection.query(sql, (err, rst, fld) => {
+              if (err) throw err;
+              if (rst.affectedRows > 0) {
+                rs.sendStatus(201);
+              }
+            })
           }
-        })
+        });
       }
     });
   } catch (e) {

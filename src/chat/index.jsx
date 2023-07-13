@@ -107,18 +107,23 @@ export default function Chat(e) {
 
     <form className="makeroom" onSubmit={async e => {
       e.preventDefault();
-      await axios.post(`${url}/chat/newroom`, { roomid2make: roomid2make })
+      const Tokens = JSON.parse(localStorage.getItem("logininfo"));
+      await axios.post(`${url}/chat/newroom`, { id: Tokens.id, roomid2make: roomid2make })
         .then(e => {
-          console.log(e.data);
           const data = e.data;
-          if (data?.message === '이미 존재하는 방 이름입니다.') {
+          if (data?.message) {
             alert(data.message);
-          } else {
-
+          } else if (data === 'Created') {
+            alert("생성되었습니다.");
           }
         })
     }}>
       <input onChange={e => setRoomid2make(e.target.value)} placeholder="newroomname" />
+      <button>새로운 방 추가</button>
+    </form>
+
+    <form>
+
     </form>
   </S.Chat>
 }
