@@ -9,6 +9,7 @@ export default function Chat(e) {
   const [signupinfo, setSignupinfo] = useState({ nickname: '', pw: '' });
   const [accesstokenAvailable, setAccessTokenAvailable] = useState(false);
   const [refreshtokenAvailable, setRefreshTokenAvailable] = useState(false);
+  const [areheretokens, setAreheretokens] = useState(false);
   const [roomid2make, setRoomid2make] = useState('');
   const url = "http://localhost:8888";
   useEffect(e => {
@@ -45,6 +46,7 @@ export default function Chat(e) {
 
     <form className="login" onSubmit={async e => {
       e.preventDefault();
+      setAreheretokens(false);
       await axios.post(`${url}/chat/deltokens`, { nickname: logininfo.nickname })
         .then(async e => {
           if (e.data.affectedRows >= 0) {
@@ -53,15 +55,20 @@ export default function Chat(e) {
               pw: logininfo.pw
             }).then(e => {
               const d = e.data;
-              axios.defaults.headers.common['Authorization'] = `Bearer ${d.accessToken}`;
-              localStorage.setItem('logininfo', JSON.stringify({
-                id: d.id,
-                nickname: logininfo.nickname,
-                refreshToken: d.refreshToken,
-                accessExpireTime: d.accessExpireTime
-              }));
-              setAccessTokenAvailable(false);
-              setRefreshTokenAvailable(false);
+              if (d?.message === "not found") {
+                alert("아이디 혹은 비밀번호가 일치하지 않습니다.");
+              } else {
+                axios.defaults.headers.common['Authorization'] = `Bearer ${d.accessToken}`;
+                localStorage.setItem('logininfo', JSON.stringify({
+                  id: d.id,
+                  nickname: logininfo.nickname,
+                  refreshToken: d.refreshToken,
+                  accessExpireTime: d.accessExpireTime
+                }));
+                setAccessTokenAvailable(false);
+                setRefreshTokenAvailable(false);
+                setAreheretokens(true);
+              }
             }).catch(e => {
               console.log(e);
             });
@@ -77,13 +84,12 @@ export default function Chat(e) {
     <form className="checkAccessToken" onSubmit={async e => {
       e.preventDefault();
       const Tokens = JSON.parse(localStorage.getItem("logininfo"));
-      await axios.post(`${url}/chat/checkaccesstoken`, { id: Tokens.id, accessToken: axios.defaults.headers.common['Authorization'].substr(7) })
+      await axios.post(`${url}/chat/checkaccesstoken`, { id: Tokens.id })
         .then(e => {
-          console.log(e.data);
           setAccessTokenAvailable(e.data);
         })
     }}>
-      <button>checkAccessTokens</button>
+      <button disabled={!areheretokens}>checkAccessTokens</button>
       <p>{accesstokenAvailable ? "사용가능한 엑세스토큰입니다." : "사용 불가능한 엑세스토큰"}</p>
     </form>
 
@@ -92,18 +98,27 @@ export default function Chat(e) {
       const Tokens = JSON.parse(localStorage.getItem("logininfo"));
       await axios.post(`${url}/chat/checkrefreshtoken`, { id: Tokens.id, refreshToken: Tokens.refreshToken })
         .then(e => {
-          console.log(e.data);
           setRefreshTokenAvailable(e.data);
         })
     }}>
-      <button>checkRefreshTokens</button>
+      <button disabled={!areheretokens}>checkRefreshTokens</button>
       <p>{refreshtokenAvailable ? "사용가능한 리프레시토큰입니다." : "사용 불가능한 리프레시토큰"}</p>
     </form>
 
-    <form className="makeroom" onSubmit={e => {
+    <form className="makeroom" onSubmit={async e => {
       e.preventDefault();
+      await axios.post(`${url}/chat/newroom`, { roomid2make: roomid2make })
+        .then(e => {
+          console.log(e.data);
+          const data = e.data;
+          if (data?.message === '이미 존재하는 방 이름입니다.') {
+            alert(data.message);
+          } else {
+
+          }
+        })
     }}>
-      <input onChange={e => setRoomid2make(e.make)} />
+      <input onChange={e => setRoomid2make(e.target.value)} placeholder="newroomname" />
     </form>
   </S.Chat>
 }
