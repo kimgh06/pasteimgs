@@ -12,7 +12,8 @@ export default function Chat(e) {
   const [roomid2make, setRoomid2make] = useState('');
   const url = "http://localhost:8888";
   useEffect(e => {
-    document.title = 'chat'
+    document.title = 'chat';
+    axios.defaults.withCredentials = true;
   }, []);
   return <S.Chat>
     <form className="checkId" onSubmit={async e => {
@@ -50,7 +51,7 @@ export default function Chat(e) {
             await axios.post(`${url}/chat/gettokens`, {
               nickname: logininfo.nickname,
               pw: logininfo.pw
-            }, { withCredentials: true }).then(e => {
+            }).then(e => {
               const d = e.data;
               axios.defaults.headers.common['Authorization'] = `Bearer ${d.accessToken}`;
               localStorage.setItem('logininfo', JSON.stringify({

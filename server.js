@@ -14,7 +14,10 @@ connection.connect(err => {
 const app = express();
 const port = 8888;
 
-app.use(cors());
+app.use(cors({
+  credentials: true, // 응답 헤더에 Access-Control-Allow-Credentials 추가
+  optionsSuccessStatus: 200
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -61,7 +64,7 @@ app.post('/chat/gettokens', (rq, rs) => {
             refreshToken: refreshToken,
             accessExpireTime: Math.floor(time) + 30 //현재 시각하고 30분 이상 차이 날시 재로그인 요청 보내도록 하기
           });
-          rs.cookie("refreshToken", refreshToken, { httpOnly: true })
+          // rs.cookie("refreshToken", refreshToken, { httpOnly: true })
         });
       } else {
         rs.send({ message: "not found" });
