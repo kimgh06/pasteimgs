@@ -7,7 +7,8 @@ export default function Chat(e) {
   const [able, setAble] = useState(null);
   const [logininfo, setLogininfo] = useState({ nickname: '', pw: '' });
   const [signupinfo, setSignupinfo] = useState({ nickname: '', pw: '' });
-  const [tokenAvailable, setTokenAvailable] = useState(false);
+  const [accesstokenAvailable, setAccessTokenAvailable] = useState(false);
+  const [refreshtokenAvailable, setRefreshTokenAvailable] = useState(false);
   const [roomid2make, setRoomid2make] = useState('');
   const url = "http://localhost:8888";
   useEffect(e => {
@@ -34,7 +35,7 @@ export default function Chat(e) {
         .then(e => {
           console.log(e.data);
         })
-        .catch(e => console.log(e))
+        .catch(e => console.log(e));
     }}>
       <input onChange={e => setSignupinfo(a => ({ ...a, nickname: e.target.value }))} placeholder="회원가입 닉네임" />
       <input onChange={e => setSignupinfo(a => ({ ...a, pw: e.target.value }))} placeholder="회원가입 비밀번호" />
@@ -49,14 +50,17 @@ export default function Chat(e) {
             await axios.post(`${url}/chat/gettokens`, {
               nickname: logininfo.nickname,
               pw: logininfo.pw
-            }).then(e => {
+            }, { withCredentials: true }).then(e => {
               const d = e.data;
+              axios.defaults.headers.common['Authorization'] = `Bearer ${d.accessToken}`;
               localStorage.setItem('logininfo', JSON.stringify({
+                id: d.id,
                 nickname: logininfo.nickname,
-                accessToken: d.accessToken,
                 refreshToken: d.refreshToken,
                 accessExpireTime: d.accessExpireTime
-              }))
+              }));
+              setAccessTokenAvailable(false);
+              setRefreshTokenAvailable(false);
             }).catch(e => {
               console.log(e);
             });
@@ -69,17 +73,30 @@ export default function Chat(e) {
       <button>토큰 발급</button>
     </form>
 
-    <form className="checkTokens" onSubmit={async e => {
+    <form className="checkAccessToken" onSubmit={async e => {
       e.preventDefault();
       const Tokens = JSON.parse(localStorage.getItem("logininfo"));
-      await axios.post(`${url}/chat/checkaccesstoken`, { accessToken: Tokens.accessToken })
+      await axios.post(`${url}/chat/checkaccesstoken`, { id: Tokens.id, accessToken: axios.defaults.headers.common['Authorization'].substr(7) })
         .then(e => {
           console.log(e.data);
-          setTokenAvailable(e.data);
+          setAccessTokenAvailable(e.data);
         })
     }}>
-      <button>checkTokens</button>
-      <p>{tokenAvailable ? "사용가능한 토큰입니다." : "사용 불가능한 토큰"}</p>
+      <button>checkAccessTokens</button>
+      <p>{accesstokenAvailable ? "사용가능한 엑세스토큰입니다." : "사용 불가능한 엑세스토큰"}</p>
+    </form>
+
+    <form className="checkRefreshToken" onSubmit={async e => {
+      e.preventDefault();
+      const Tokens = JSON.parse(localStorage.getItem("logininfo"));
+      await axios.post(`${url}/chat/checkrefreshtoken`, { id: Tokens.id, refreshToken: Tokens.refreshToken })
+        .then(e => {
+          console.log(e.data);
+          setRefreshTokenAvailable(e.data);
+        })
+    }}>
+      <button>checkRefreshTokens</button>
+      <p>{refreshtokenAvailable ? "사용가능한 리프레시토큰입니다." : "사용 불가능한 리프레시토큰"}</p>
     </form>
 
     <form className="makeroom" onSubmit={e => {

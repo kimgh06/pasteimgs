@@ -15,7 +15,7 @@ const app = express();
 const port = 8888;
 
 app.use(cors());
-app.use(express.json())
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.listen(port, '0.0.0.0', e => {
@@ -53,13 +53,15 @@ app.post('/chat/gettokens', (rq, rs) => {
         const refreshToken = Math.random().toString(36).substr(2, 11) + Math.random().toString(36).substr(2, 11);
         const time = new Date().getTime() / 1000 / 60; //분 단위
         sql = `insert into tokens values(${rst[0].id}, '${accessToken}', '${refreshToken}', '${Math.floor(time)}')`;
-        connection.query(sql, (err, rst, fld) => {
+        connection.query(sql, (err, rest, fld) => {
           if (err) throw err;
           rs.send({
+            id: rst[0].id,
             accessToken: accessToken,
             refreshToken: refreshToken,
             accessExpireTime: Math.floor(time) + 30 //현재 시각하고 30분 이상 차이 날시 재로그인 요청 보내도록 하기
           });
+          rs.cookie("refreshToken", refreshToken, { httpOnly: true })
         });
       } else {
         rs.send({ message: "not found" });
@@ -106,10 +108,6 @@ app.post('/chat/signup', (rq, rs) => {
   }
 });
 
-app.post('/chat/newroom', (rq, rs) => {
-
-});
-
 app.post('/chat/checkaccesstoken', (rq, rs) => {
   const body = rq.body;
   let sql = `select * from tokens where accessToken = '${body.accessToken}'`;
@@ -117,7 +115,7 @@ app.post('/chat/checkaccesstoken', (rq, rs) => {
     connection.query(sql, (err, rst, fld) => {
       if (err) throw err;
       const time = new Date().getTime() / 1000 / 60;
-      if (time - rst[0].registedTime >= 30) {
+      if (time - rst[0].registedTime >= 30 && rst[0].id === body.id) {
         rs.send(false);
       } else {
         rs.send(true);
@@ -126,4 +124,27 @@ app.post('/chat/checkaccesstoken', (rq, rs) => {
   } catch (e) {
     console.log(e);
   }
+});
+
+app.post('/chat/checkrefreshtoken', (rq, rs) => {
+  const body = rq.body;
+  let sql = `select * from tokens where refreshToken = '${body.refreshToken}'`;
+  try {
+    connection.query(sql, (err, rst, fld) => {
+      if (err) throw err;
+      const time = new Date().getTime() / 1000 / 60;
+      if (time - rst[0].registedTime >= 3000 && rst[0].id === body.id) {
+        rs.send(false);
+      } else {
+        rs.send(true);
+      }
+    });
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+app.post('/chat/newroom', (rq, rs) => {
+  const body = rq.body;
+
 });
