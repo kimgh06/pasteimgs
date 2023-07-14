@@ -228,3 +228,15 @@ app.post('/chat/refresh', (rq, rs) => {
     }
   })
 });
+
+app.get('/chat/rooms', (rq, rs) => {
+  let sql = `select * from chatroomandid`;
+  try {
+    connection.query(sql, (err, rst, fld) => {
+      if (err) throw err;
+      rs.send(rst);
+    });
+  } catch (e) {
+    console.log(e);
+  }
+});

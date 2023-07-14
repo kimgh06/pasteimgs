@@ -11,26 +11,31 @@ export default function Chat(e) {
   const [refreshtokenAvailable, setRefreshTokenAvailable] = useState(false);
   const [areheretokens, setAreheretokens] = useState(false);
   const [roomid2make, setRoomid2make] = useState('');
+  const [rooms, setRooms] = useState([]);
   const url = "http://localhost:8888";
   let t = Math.floor(new Date().getTime() / 1000 / 60);
   async function refreshTokens() {
-    setAreheretokens(false);
-    const Tokens = JSON.parse(localStorage.getItem("logininfo"));
-    await axios.post(`${url}/chat/refresh`, {
-      refreshToken: Tokens.refreshToken
-    }).then(e => {
-      const d = e.data;
-      axios.defaults.headers.common['Authorization'] = `Bearer ${d.accessToken}`;
-      localStorage.setItem('logininfo', JSON.stringify({
-        id: d.id,
-        nickname: logininfo.nickname,
-        refreshToken: d.refreshToken,
-        accessExpireTime: d.accessExpireTime
-      }));
-      setAccessTokenAvailable(false);
-      setRefreshTokenAvailable(false);
-      setAreheretokens(true);
-    })
+    if (axios.defaults.headers.common['Authorization']) {
+      setAreheretokens(false);
+      console.log("Refreshing Tokens...");
+      const Tokens = JSON.parse(localStorage.getItem("logininfo"));
+      await axios.post(`${url}/chat/refresh`, {
+        refreshToken: Tokens.refreshToken
+      }).then(e => {
+        const d = e.data;
+        axios.defaults.headers.common['Authorization'] = `Bearer ${d.accessToken}`;
+        localStorage.setItem('logininfo', JSON.stringify({
+          id: d.id,
+          nickname: logininfo.nickname,
+          refreshToken: d.refreshToken,
+          accessExpireTime: d.accessExpireTime
+        }));
+        setAccessTokenAvailable(false);
+        setRefreshTokenAvailable(false);
+        setAreheretokens(true);
+        console.log("Done!")
+      });
+    }
   }
   useEffect(e => {
     document.title = 'chat';
@@ -43,6 +48,18 @@ export default function Chat(e) {
         refreshTokens();
       }
     }, 10000);
+  }, []);
+  async function getrooms() {
+    await axios.get(`${url}/chat/rooms`).then(e => {
+      let data = e.data;
+      setRooms(e.data);
+    }).catch(e => console.log(e));
+  }
+  useEffect(e => {
+    getrooms();
+    setInterval(e => {
+      getrooms();
+    }, 30000);
   }, []);
   return <S.Chat>
     <form className="checkId" onSubmit={async e => {
@@ -137,7 +154,7 @@ export default function Chat(e) {
       e.preventDefault();
       refreshTokens();
     }}>
-      <button>토큰 재발급</button>
+      <button disabled={!areheretokens}>토큰 재발급</button>
     </form>
 
     <form className="makeroom" onSubmit={async e => {
@@ -150,12 +167,25 @@ export default function Chat(e) {
             alert(data.message);
           } else if (data === 'Created') {
             alert("생성되었습니다.");
+            getrooms();
           }
         })
     }}>
       <input onChange={e => setRoomid2make(e.target.value)} placeholder="newroomname" />
       <button>새로운 방 추가</button>
     </form>
+    <table border='1'>
+      <thead>
+        <tr>
+          <td>
+            생성된 방 목록
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        {rooms.map((i, n) => <tr key={n}><td>{i?.chatroomid}</td><td>{i?.roomname}</td></tr>)}
+      </tbody>
+    </table>
 
   </S.Chat>
 }
