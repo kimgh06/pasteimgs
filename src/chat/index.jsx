@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
 import * as S from "./style";
 import axios from "axios";
+import { io } from "socket.io-client";
+const socket = io();
 
 export default function Chat(e) {
   const [toput, setToput] = useState('');
@@ -51,7 +53,6 @@ export default function Chat(e) {
   }, []);
   async function getrooms() {
     await axios.get(`${url}/chat/rooms`).then(e => {
-      let data = e.data;
       setRooms(e.data);
     }).catch(e => console.log(e));
   }

@@ -1,18 +1,25 @@
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require("cors");
+const http = require('http');
+const app = express();
+const server = http.createServer(app);
+const { Server } = require("socket.io");
+const io = new Server(server);
+const port = 8888;
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: '1234',
   database: 'madang'
 });
+io.on('connection', socket => {
+  console.log(socket);
+})
 connection.connect(err => {
   if (err) throw err;
   console.log("the database is connected");
 })
-const app = express();
-const port = 8888;
 
 app.use(cors({
   credentials: true, // 응답 헤더에 Access-Control-Allow-Credentials 추가
@@ -24,6 +31,7 @@ app.use(express.urlencoded({ extended: false }));
 app.listen(port, '0.0.0.0', e => {
   console.log(`this server is running on port ${port}`);
 });
+
 
 /* 위에 있는 것들은 모두 초기 설정임. */
 
