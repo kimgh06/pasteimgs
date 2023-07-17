@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import * as S from "./style";
 import axios from "axios";
-import { initSocketConnection, socket } from '../socketio-client';
+import { Link } from "react-router-dom";
 const url = "http://localhost:8888";
 
 export default function Chat(e) {
@@ -41,7 +41,6 @@ export default function Chat(e) {
   useEffect(e => {
     document.title = 'chat';
     axios.defaults.withCredentials = true;
-    initSocketConnection();
   }, []);
   useEffect(e => {
     const expiredTime = JSON.parse(localStorage.getItem('logininfo')).accessExpireTime;
@@ -50,6 +49,7 @@ export default function Chat(e) {
         refreshTokens();
       }
     }, 10000);
+    //eslint-disable-next-line
   }, []);
   async function getrooms() {
     await axios.get(`${url}/chat/rooms`).then(e => {
@@ -184,7 +184,7 @@ export default function Chat(e) {
         </tr>
       </thead>
       <tbody>
-        {rooms.map((i, n) => <tr key={n}><td>{i?.chatroomid}</td><td>{i?.roomname}</td></tr>)}
+        {rooms.map((i, n) => <tr key={n}><td><Link to={`/chat/${i?.chatroomid}`}>{i?.chatroomid}</Link></td><td>{i?.roomname}</td></tr>)}
       </tbody>
     </table>
 

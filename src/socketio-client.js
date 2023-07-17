@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
 const url = "http://localhost:8888";
 
-export let socket = io(`${url}`, { transports: ['websocket'] });
+export let socket = io(`${url}`, { path: 'http://localhost:3002' });
 export const initSocketConnection = e => {
   if (socket) return;
   socket.connect();
@@ -12,8 +12,7 @@ export const sendSocketMessage = (cmd, body = null) => {
     initSocketConnection();
   }
   socket.emit("message", {
-    cmd: cmd,
-    body, body
+    message: 'hello'
   });
 }
 

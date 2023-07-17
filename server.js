@@ -5,7 +5,7 @@ const http = require('http');
 const app = express();
 const server = http.createServer(app);
 const { Server } = require("socket.io");
-const io = new Server(server);
+const io = new Server(server, { path: 'http://localhost:3002' });
 const port = 8888;
 const connection = mysql.createConnection({
   host: 'localhost',
@@ -13,9 +13,11 @@ const connection = mysql.createConnection({
   password: '1234',
   database: 'madang'
 });
+
 io.on('connection', socket => {
-  console.log(socket);
+  console.log("succeeded");
 })
+
 connection.connect(err => {
   if (err) throw err;
   console.log("the database is connected");
@@ -243,6 +245,19 @@ app.get('/chat/rooms', (rq, rs) => {
     connection.query(sql, (err, rst, fld) => {
       if (err) throw err;
       rs.send(rst);
+    });
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+app.get('/chat/getroominfo', (rq, rs) => {
+  const id = rq.query.id;
+  let sql = `select * from chatroomandid where chatroomid = ${id}`;
+  try {
+    connection.query(sql, (err, rst, fld) => {
+      if (err) throw err;
+      rs.send(rst[0]?.roomname);
     });
   } catch (e) {
     console.log(e);
