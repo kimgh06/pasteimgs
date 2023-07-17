@@ -15,7 +15,11 @@ const connection = mysql.createConnection({
 });
 
 io.on('connection', socket => {
-  console.log("succeeded");
+  console.log('connected')
+  socket.on('message', data => {
+    console.log(data)
+    socket.broadcast.emit("received", data)
+  });
 })
 
 connection.connect(err => {
