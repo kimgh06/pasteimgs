@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
 import * as S from "./style";
 import axios from "axios";
-import { io } from "socket.io-client";
-const socket = io();
+import { initSocketConnection, socket } from '../socketio-client';
+const url = "http://localhost:8888";
 
 export default function Chat(e) {
   const [toput, setToput] = useState('');
@@ -14,7 +14,6 @@ export default function Chat(e) {
   const [areheretokens, setAreheretokens] = useState(false);
   const [roomid2make, setRoomid2make] = useState('');
   const [rooms, setRooms] = useState([]);
-  const url = "http://localhost:8888";
   let t = Math.floor(new Date().getTime() / 1000 / 60);
   async function refreshTokens() {
     if (axios.defaults.headers.common['Authorization']) {
@@ -42,6 +41,7 @@ export default function Chat(e) {
   useEffect(e => {
     document.title = 'chat';
     axios.defaults.withCredentials = true;
+    initSocketConnection();
   }, []);
   useEffect(e => {
     const expiredTime = JSON.parse(localStorage.getItem('logininfo')).accessExpireTime;
