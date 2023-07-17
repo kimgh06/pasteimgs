@@ -160,7 +160,7 @@ function checkAuthorizationOfRefreshToken(id, refreshToken, callback) {
     connection.query(sql, (err, rst, fld) => {
       if (err) throw err;
       const time = new Date().getTime() / 1000 / 60;
-      if (time - rst[0].registedTime >= 3000) {
+      if (time - rst[0]?.registedTime >= 3000) {
         callback(false);
       } else {
         callback(true);
@@ -213,14 +213,14 @@ app.post('/chat/newroom', (rq, rs) => {
 
 app.post('/chat/refresh', (rq, rs) => {
   const body = rq.body;
-  let accessToken = rq.headers.authorization.substr(7);
-  let sql = `select * from tokens where accesstoken = '${accessToken}' and refreshtoken = '${body.refreshToken}'`;
+  let accessToken;
+  let sql = `select * from tokens where refreshtoken = '${body.refreshToken}'`;
   connection.query(sql, (err, rst, fld) => {
     if (err) throw err;
     const time = Math.floor(new Date().getTime() / 1000 / 60); //분 단위
     accessToken = Math.random().toString(36).substr(2, 11) + Math.random().toString(36).substr(2, 11);
     refreshToken = Math.random().toString(36).substr(2, 11) + Math.random().toString(36).substr(2, 11);
-    if (time - rst[0].registedTime <= 3000) {
+    if (time - rst[0]?.registedTime <= 3000) {
       sql = `update tokens set accesstoken = '${accessToken}', refreshToken = '${refreshToken}', registedtime = '${time}' where id = '${rst[0].id}'`;
       connection.query(sql, (err, rst1, fld) => {
         if (err) throw err;
