@@ -28,7 +28,7 @@ export default function Room() {
   }
   function time2date(time) {
     let t = new Date(time * 60000);
-    return `${t.getFullYear()}.${t.getMonth()}.${t.getDay()} ${t.getHours()}:${t.getMinutes()}`;
+    return `${t.getFullYear()}. ${t.getMonth()}. ${t.getDay()}. ${t.getHours()}:${t.getMinutes()}`;
   }
   useEffect(e => {
     getRoomInfomation();
@@ -40,6 +40,7 @@ export default function Room() {
       list.push(data);
       setChatlist(e => list);
     })
+    //eslint-disable-next-line
   }, [socket]);
   return <div>
     <h1>{chatRoomName}</h1>
@@ -53,10 +54,11 @@ export default function Room() {
       <input onChange={e => setSendMessage(e.target.value)} value={sendMessage} />
       <button>메시지 보내기</button>
     </form>
-    {chatlist?.map((i, n) => {
-      if (n > 0) {
-        return <p key={n}>{time2date(i?.time)}. {i?.clientId}: {i?.message}</p>
-      }
-    })}
+    {//eslint-disable-next-line
+      chatlist?.map((i, n) => {
+        if (n > 0) {
+          return <p key={n}>{time2date(i?.time)} {i?.clientId}: {i?.message}</p>
+        }
+      })}
   </div >;
 }
