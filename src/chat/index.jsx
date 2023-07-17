@@ -27,7 +27,7 @@ export default function Chat(e) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${d.accessToken}`;
       localStorage.setItem('logininfo', JSON.stringify({
         id: d.id,
-        nickname: logininfo.nickname,
+        nickname: JSON.parse(localStorage.getItem('logininfo')).nickname,
         refreshToken: d.refreshToken,
         accessExpireTime: d.accessExpireTime
       }));

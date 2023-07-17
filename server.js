@@ -15,10 +15,12 @@ const connection = mysql.createConnection({
 });
 
 io.on('connection', socket => {
-  console.log('connected')
+  socket.on("join_room", data => {
+    socket.join(data.room);
+  });
   socket.on('message', data => {
     console.log(data)
-    socket.broadcast.emit("received", data)
+    socket.to(data.room).emit("received", data);
   });
 })
 
