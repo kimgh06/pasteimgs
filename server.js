@@ -19,7 +19,6 @@ io.on('connection', socket => {
     socket.join(data.room);
   });
   socket.on('message', data => {
-    console.log(data)
     socket.to(data.room).emit("received", data);
   });
 })

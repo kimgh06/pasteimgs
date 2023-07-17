@@ -13,6 +13,7 @@ export default function Room() {
   function send_message(message) {
     socket.emit('message', {
       clientId: JSON.parse(localStorage.getItem('logininfo')).nickname,
+      time: Math.floor(new Date().getTime() / 1000 / 60),
       message: message,
       room: id
     });
@@ -25,16 +26,18 @@ export default function Room() {
         socket.emit('join_room', { room: id });
       });
   }
+  function time2date(time) {
+    let t = new Date(time * 60000);
+    return `${t.getFullYear()}.${t.getMonth()}.${t.getDay()} ${t.getHours()}:${t.getMinutes()}`;
+  }
   useEffect(e => {
     getRoomInfomation();
     //eslint-disable-next-line
   }, []);
   useEffect(e => {
     socket.on("received", data => {
-      console.log(data);
       let list = chatlist;
       list.push(data);
-      console.log(list);
       setChatlist(e => list);
     })
   }, [socket]);
@@ -52,7 +55,7 @@ export default function Room() {
     </form>
     {chatlist?.map((i, n) => {
       if (n > 0) {
-        return <p key={n}>{n}. {i?.clientId}: {i?.message}</p>
+        return <p key={n}>{time2date(i?.time)}. {i?.clientId}: {i?.message}</p>
       }
     })}
   </div >;
