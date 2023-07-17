@@ -51,7 +51,7 @@ export default function Chat(e) {
       if (t >= expiredTime) {
         refreshTokens();
       }
-    }, 10000);
+    }, 120000);
     //eslint-disable-next-line
   }, []);
   async function getrooms() {

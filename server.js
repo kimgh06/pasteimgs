@@ -5,7 +5,7 @@ const http = require('http');
 const app = express();
 const server = http.createServer(app);
 const { Server } = require("socket.io");
-const io = new Server(server, { path: 'http://localhost:3002' });
+const io = new Server(server);
 const port = 8888;
 const connection = mysql.createConnection({
   host: 'localhost',
@@ -30,7 +30,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.listen(port, '0.0.0.0', e => {
+server.listen(port, '0.0.0.0', e => {
   console.log(`this server is running on port ${port}`);
 });
 
