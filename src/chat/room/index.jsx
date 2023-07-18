@@ -49,9 +49,16 @@ export default function Room() {
       setSendMessage('');
       if (sendMessage !== '') {
         send_message(sendMessage);
+        socket.on("received", data => {
+          let list = chatlist;
+          list.push(data);
+          setChatlist(e => list);
+        })
       }
     }}>
-      <input onChange={e => setSendMessage(e.target.value)} value={sendMessage} />
+      <input onChange={e => {
+        setSendMessage(e.target.value);
+      }} value={sendMessage} />
       <button>메시지 보내기</button>
     </form>
     {//eslint-disable-next-line

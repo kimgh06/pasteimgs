@@ -16,37 +16,37 @@ export default function Chat(e) {
   const [rooms, setRooms] = useState([]);
   let t = Math.floor(new Date().getTime() / 1000 / 60);
   async function refreshTokens() {
-    // if (axios.defaults.headers.common['Authorization']) {
-    setAreheretokens(false);
-    console.log("Refreshing Tokens...");
-    const Tokens = JSON.parse(localStorage.getItem("logininfo"));
-    await axios.post(`${url}/chat/refresh`, {
-      refreshToken: Tokens.refreshToken
-    }).then(e => {
-      const d = e.data;
-      axios.defaults.headers.common['Authorization'] = `Bearer ${d.accessToken}`;
-      localStorage.setItem('logininfo', JSON.stringify({
-        id: d.id,
-        nickname: JSON.parse(localStorage.getItem('logininfo')).nickname,
-        refreshToken: d.refreshToken,
-        accessExpireTime: d.accessExpireTime
-      }));
-      setAccessTokenAvailable(false);
-      setRefreshTokenAvailable(false);
-      setAreheretokens(true);
-      console.log("Done!")
-    });
-    // }
+    if (JSON.parse(localStorage.getItem('logininfo'))?.refreshToken) {
+      setAreheretokens(false);
+      console.log("Refreshing Tokens...");
+      const Tokens = JSON.parse(localStorage.getItem("logininfo"));
+      await axios.post(`${url}/chat/refresh`, {
+        refreshToken: Tokens.refreshToken
+      }).then(e => {
+        const d = e.data;
+        axios.defaults.headers.common['Authorization'] = `Bearer ${d.accessToken}`;
+        localStorage.setItem('logininfo', JSON.stringify({
+          id: d.id,
+          nickname: JSON.parse(localStorage.getItem('logininfo')).nickname,
+          refreshToken: d.refreshToken,
+          accessExpireTime: d.accessExpireTime
+        }));
+        setAccessTokenAvailable(false);
+        setRefreshTokenAvailable(false);
+        setAreheretokens(true);
+        console.log("Done!")
+      });
+    }
   }
   useEffect(e => {
     document.title = 'chat';
     axios.defaults.withCredentials = true;
-    if (JSON.parse(localStorage.getItem('logininfo')).refreshToken !== undefined) {
+    if (JSON.parse(localStorage.getItem('logininfo'))?.refreshToken) {
       setRefreshTokenAvailable(true);
     }
   }, []);
   useEffect(e => {
-    const expiredTime = JSON.parse(localStorage.getItem('logininfo')).accessExpireTime;
+    const expiredTime = JSON.parse(localStorage.getItem('logininfo'))?.accessExpireTime;
     setInterval(() => {
       if (t >= expiredTime) {
         refreshTokens();
