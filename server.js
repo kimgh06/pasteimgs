@@ -17,7 +17,6 @@ const connection = mysql.createConnection({
 io.on('connection', socket => {
   socket.on("join_room", data => {
     socket.join(data.room);
-    console.log(socket.rooms);
   });
   socket.on('message', data => {
     socket.to(data.room).emit("received", data);

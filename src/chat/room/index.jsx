@@ -1,11 +1,14 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { io } from "socket.io-client";
-const url = "http://localhost:8888";
+import * as S from './style';
+// const url = "http://localhost:8888";
+const url = 'http://10.53.68.222:8888';
 
 export default function Room() {
   let { id } = useParams();
+  let chatlistref = useRef();
   const [sendMessage, setSendMessage] = useState('');
   const [chatRoomName, setChatRoomName] = useState('');
   const [chatlist, setChatlist] = useState([{}]);
@@ -34,26 +37,27 @@ export default function Room() {
     getRoomInfomation();
     //eslint-disable-next-line
   }, []);
-  useEffect(e => {
-    socket.on("received", data => {
-      let list = chatlist;
-      list.push(data);
-      setChatlist(e => list);
-    })
-    //eslint-disable-next-line
-  }, [socket]);
-  return <div>
+  socket.on("received", data => {
+    let list = chatlist;
+    list?.push(data);
+    setChatlist(e => list);
+    chatlistref.current.scrollBy(0, 100000);
+  })
+  socket.on()
+  return <S.Chat>
     <h1>{chatRoomName}</h1>
+    <div className="chatlist" ref={chatlistref} >
+      {//eslint-disable-next-line
+        chatlist?.map((i, n) => {
+          if (n > 0) {
+            return <p id={n} key={n}>{time2date(i?.time)} {i?.clientId}: {i?.message}</p>
+          }
+        })}</div>
     <form onSubmit={e => {
       e.preventDefault();
       setSendMessage('');
       if (sendMessage !== '') {
         send_message(sendMessage);
-        socket.on("received", data => {
-          let list = chatlist;
-          list.push(data);
-          setChatlist(e => list);
-        })
       }
     }}>
       <input onChange={e => {
@@ -61,11 +65,5 @@ export default function Room() {
       }} value={sendMessage} />
       <button>메시지 보내기</button>
     </form>
-    {//eslint-disable-next-line
-      chatlist?.map((i, n) => {
-        if (n > 0) {
-          return <p key={n}>{time2date(i?.time)} {i?.clientId}: {i?.message}</p>
-        }
-      })}
-  </div >;
+  </S.Chat >;
 }

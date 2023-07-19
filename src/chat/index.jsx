@@ -2,7 +2,8 @@ import { useEffect, useState } from "react"
 import * as S from "./style";
 import axios from "axios";
 import { Link } from "react-router-dom";
-const url = "http://localhost:8888";
+// const url = "http://localhost:8888";
+const url = 'http://10.53.68.222:8888';
 
 export default function Chat(e) {
   const [toput, setToput] = useState('');
