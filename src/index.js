@@ -10,6 +10,7 @@ root.render(
   <>
     <BrowserRouter>
       <Routes>
+        <Route path='/' element={<>루트<a href='/chat'>채팅방 ㄱㄱ</a></>} />
         <Route path='/sendingimgs' element={<SendingImgs />} />
         <Route path='/chat' element={<Chat />} />
         <Route path='/chat/:id' element={<Room />} />

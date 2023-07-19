@@ -29,10 +29,7 @@ connection.connect(err => {
   console.log("the database is connected");
 })
 
-app.use(cors({
-  credentials: true, // 응답 헤더에 Access-Control-Allow-Credentials 추가
-  optionsSuccessStatus: 200
-}));
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 

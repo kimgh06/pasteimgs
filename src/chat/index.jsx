@@ -40,7 +40,6 @@ export default function Chat(e) {
   }
   useEffect(e => {
     document.title = 'chat';
-    axios.defaults.withCredentials = true;
     if (JSON.parse(localStorage.getItem('logininfo'))?.refreshToken) {
       setRefreshTokenAvailable(true);
     }

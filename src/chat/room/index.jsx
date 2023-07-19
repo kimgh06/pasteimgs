@@ -9,7 +9,7 @@ export default function Room() {
   const [sendMessage, setSendMessage] = useState('');
   const [chatRoomName, setChatRoomName] = useState('');
   const [chatlist, setChatlist] = useState([{}]);
-  let socket = io.connect(url);
+  let socket = io.connect(url, { transports: ["websocket"] });
   function send_message(message) {
     socket.emit('message', {
       clientId: JSON.parse(localStorage.getItem('logininfo')).nickname,
