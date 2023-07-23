@@ -3,16 +3,16 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { io } from "socket.io-client";
 import * as S from './style';
-// const url = "http://localhost:8888";
-const url = 'http://10.53.68.222:8888';
+const url = "http://localhost:8888";
+// const url = 'http://10.53.68.222:8888';
 
 export default function Room() {
+  let socket = io.connect(url, { transports: ["websocket"] });
   let { id } = useParams();
   let chatlistref = useRef();
   const [sendMessage, setSendMessage] = useState('');
   const [chatRoomName, setChatRoomName] = useState('');
   const [chatlist, setChatlist] = useState([{}]);
-  let socket = io.connect(url, { transports: ["websocket"] });
   function send_message(message) {
     socket.emit('message', {
       clientId: JSON.parse(localStorage.getItem('logininfo')).nickname,
@@ -42,8 +42,7 @@ export default function Room() {
     list?.push(data);
     setChatlist(e => list);
     chatlistref.current.scrollBy(0, 100000);
-  })
-  socket.on()
+  });
   return <S.Chat>
     <h1>{chatRoomName}</h1>
     <div className="chatlist" ref={chatlistref} >
