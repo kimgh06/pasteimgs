@@ -10,8 +10,10 @@ export default function Room() {
   let socket = io.connect(url, { transports: ["websocket"] });
   let { id } = useParams();
   let chatlistref = useRef();
+  let fileref = useRef();
   const [sendMessage, setSendMessage] = useState('');
   const [chatRoomName, setChatRoomName] = useState('');
+  const [src, setSrc] = useState(null);
   const [chatlist, setChatlist] = useState([{}]);
   function send_message(message) {
     socket.emit('message', {
@@ -33,16 +35,16 @@ export default function Room() {
     let t = new Date(time * 60000);
     return `${t.getFullYear()}. ${t.getMonth()}. ${t.getDay()}. ${t.getHours()}:${t.getMinutes()}`;
   }
-  useEffect(e => {
-    getRoomInfomation();
-    //eslint-disable-next-line
-  }, []);
   socket.on("received", data => {
     let list = chatlist;
     list?.push(data);
     setChatlist(e => list);
-    chatlistref.current.scrollBy(0, 100000);
+    chatlistref.current.scrollBy(0, chatlistref.current.scrollHeight);
   });
+  useEffect(e => {
+    getRoomInfomation();
+    //eslint-disable-next-line
+  }, []);
   return <S.Chat>
     <h1>{chatRoomName}</h1>
     <div className="chatlist" ref={chatlistref} >
@@ -64,5 +66,20 @@ export default function Room() {
       }} value={sendMessage} />
       <button>메시지 보내기</button>
     </form>
+    <form onSubmit={e => {
+      e.preventDefault();
+      const thefile = fileref.current.files[0];
+      socket.emit('uploadFiles', thefile, s => {
+        console.log(s.message);
+        const blob = new Blob(new Uint8Array(s.message), { type: 'image/png' });
+        console.log(blob)
+        const url = URL.createObjectURL(blob);
+        setSrc(url);
+      })
+    }}>
+      <input type="file" ref={fileref} />
+      <button>보내기</button>
+    </form>
+    <img src={src} alt="img" />
   </S.Chat >;
 }

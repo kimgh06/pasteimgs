@@ -5,6 +5,7 @@ const http = require('http');
 const app = express();
 const server = http.createServer(app);
 const { Server } = require("socket.io");
+const { writeFile } = require('fs');
 const io = new Server(server);
 const port = 8888;
 const connection = mysql.createConnection({
@@ -22,6 +23,12 @@ io.on('connection', socket => {
     // console.log(data);
     socket.to(data.room).emit("received", data);
   });
+  socket.on('uploadFiles', (file, callback) => {
+    console.log(file);
+    writeFile("/tmp/upload", file, (err) => {
+      callback({ message: err ? "failure" : file });
+    });
+  })
 })
 
 connection.connect(err => {
