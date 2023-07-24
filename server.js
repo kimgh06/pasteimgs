@@ -21,10 +21,9 @@ io.on('connection', socket => {
   });
   socket.on('message', data => {
     // console.log(data);
-    socket.to(data.room).emit("received", data);
+    socket.to(data.room).emit("received", data); //내가 여기에 콜백 설정을 해놨었나?
   });
   socket.on('uploadFiles', (file, callback) => {
-    console.log(file);
     writeFile("/tmp/upload", file, (err) => {
       callback({ message: err ? "failure" : file });
     });

@@ -72,7 +72,6 @@ export default function Room() {
       socket.emit('uploadFiles', thefile, s => {
         console.log(s.message);
         const blob = new Blob([new Uint8Array(s.message)], { type: 'image/png' });
-        console.log(blob)
         const url = URL.createObjectURL(blob);
         setSrc(url);
       })

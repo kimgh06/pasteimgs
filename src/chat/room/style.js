@@ -12,4 +12,8 @@ export const Chat = styled.div`
   input{
     width: 400px;
   }
+  img{
+    object-fit: scale-down;
+    width: 200px;
+  }
 `
