@@ -24,9 +24,6 @@ export default function Room() {
       room: id
     });
     setSendMessage('');
-    setTimeout(() => {
-      setUselesscnt(e => e + 1);
-    }, 400);
   }
   async function getRoomInfomation() {
     await axios.get(`${url}/chat/getroominfo?id=${id}`)
@@ -47,6 +44,9 @@ export default function Room() {
   });
   useEffect(e => {
     getRoomInfomation();
+    setInterval(() => {
+      setUselesscnt(e => e + 1);
+    }, 400);
     //eslint-disable-next-line
   }, []);
   useEffect(e => {
