@@ -62,8 +62,8 @@ export default function Room() {
   useEffect(e => {
     setTimeout(() => {
       chatlistref.current.scrollBy(0, chatlistref.current.scrollHeight);
-    }, 10);
-  }, [chatlist.length])
+    }, 200);
+  }, [chatlist.length]);
   return <S.Chat>
     <h1>{chatRoomName}</h1>
     <div className="chatlist" ref={chatlistref} >
