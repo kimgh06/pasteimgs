@@ -19,10 +19,9 @@ io.on('connection', socket => {
   socket.on("join_room", data => {
     socket.join(data.room);
   });
-  socket.on('message', (data, callback) => {
+  socket.on('message', (data) => {
     // console.log(data);
     socket.to(data.room).emit("received", data);
-    callback('send')
   });
   socket.on('uploadFiles', (file, callback) => {
     writeFile("/tmp/upload", file, (err) => {

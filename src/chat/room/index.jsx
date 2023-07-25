@@ -15,15 +15,18 @@ export default function Room() {
   const [chatRoomName, setChatRoomName] = useState('');
   const [src, setSrc] = useState(null);
   const [chatlist, setChatlist] = useState([{}]);
+  const [uselesscnt, setUselesscnt] = useState(0);
   function send_message(message) {
     socket.emit('message', {
       clientId: JSON.parse(localStorage.getItem('logininfo')).nickname,
       time: Math.floor(new Date().getTime() / 1000 / 60),
       message: message,
       room: id
-    }, e => {
-      setSendMessage('');
     });
+    setSendMessage('');
+    setTimeout(() => {
+      setUselesscnt(e => e + 1);
+    }, 400);
   }
   async function getRoomInfomation() {
     await axios.get(`${url}/chat/getroominfo?id=${id}`)
@@ -41,12 +44,14 @@ export default function Room() {
     let list = chatlist;
     list?.push(data);
     setChatlist(e => list);
-    chatlistref.current.scrollBy(0, chatlistref.current.scrollHeight);
   });
   useEffect(e => {
     getRoomInfomation();
     //eslint-disable-next-line
   }, []);
+  useEffect(e => {
+    chatlistref.current.scrollBy(0, chatlistref.current.scrollHeight);
+  }, [uselesscnt])
   return <S.Chat>
     <h1>{chatRoomName}</h1>
     <div className="chatlist" ref={chatlistref} >
