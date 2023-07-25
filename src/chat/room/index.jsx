@@ -46,27 +46,28 @@ export default function Room() {
     }
     list?.push(data);
     setChatlist(e => list);
+    setTimeout(() => {
+      chatlistref.current.scrollBy(0, chatlistref.current.scrollHeight);
+    }, 300);
   });
   socket.on("new one", data => {
     let list = chatlist;
     list?.push({ newone: data });
     setChatlist(e => list);
+    setTimeout(() => {
+      chatlistref.current.scrollBy(0, chatlistref.current.scrollHeight);
+    }, 300);
   })
   useEffect(e => {
     getRoomInfomation();
     setInterval(() => {
       setUselesscnt(e => e + 1);
-    }, 400);
+    }, 300);
     //eslint-disable-next-line
   }, []);
-  useEffect(e => {
-    setTimeout(() => {
-      chatlistref.current.scrollBy(0, chatlistref.current.scrollHeight);
-    }, 200);
-  }, [chatlist.length]);
   return <S.Chat>
     <h1>{chatRoomName}</h1>
-    <div className="chatlist" ref={chatlistref} >
+    <div className="chatlist" ref={chatlistref}>
       {//eslint-disable-next-line
         chatlist?.map((i, n) => {
           if (n > 0) {
