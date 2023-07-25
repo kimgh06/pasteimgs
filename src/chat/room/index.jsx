@@ -56,9 +56,9 @@ export default function Room() {
         })}</div>
     <form onSubmit={e => {
       e.preventDefault();
-      setSendMessage('');
       if (sendMessage !== '') {
         send_message(sendMessage);
+        setSendMessage('');
       }
     }}>
       <input onChange={e => {
@@ -69,8 +69,8 @@ export default function Room() {
     <form onSubmit={e => {
       e.preventDefault();
       const thefile = fileref.current.files[0];
+      send_message('');
       socket.emit('uploadFiles', thefile, s => {
-        console.log(s.message);
         const blob = new Blob([new Uint8Array(s.message)], { type: 'image/png' });
         const url = URL.createObjectURL(blob);
         setSrc(url);
