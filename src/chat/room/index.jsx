@@ -21,6 +21,8 @@ export default function Room() {
       time: Math.floor(new Date().getTime() / 1000 / 60),
       message: message,
       room: id
+    }, e => {
+      setSendMessage('');
     });
   }
   async function getRoomInfomation() {
@@ -51,17 +53,13 @@ export default function Room() {
       {//eslint-disable-next-line
         chatlist?.map((i, n) => {
           if (n > 0) {
-            return <>
-              <p id={n} key={n}>{time2date(i?.time)} {i?.clientId}: {i?.message}</p>
-              { }
-            </>;
+            return <p id={n} key={n}>{time2date(i?.time)} {i?.clientId}: {i?.message}</p>
           }
         })}</div>
     <form onSubmit={e => {
       e.preventDefault();
       if (sendMessage !== '') {
         send_message(sendMessage);
-        setSendMessage('');
       }
     }}>
       <input onChange={e => {
