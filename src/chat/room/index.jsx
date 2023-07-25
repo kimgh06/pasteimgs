@@ -60,8 +60,10 @@ export default function Room() {
     //eslint-disable-next-line
   }, []);
   useEffect(e => {
-    chatlistref.current.scrollBy(0, chatlistref.current.scrollHeight);
-  }, [uselesscnt])
+    setTimeout(() => {
+      chatlistref.current.scrollBy(0, chatlistref.current.scrollHeight);
+    }, 10);
+  }, [chatlist.length])
   return <S.Chat>
     <h1>{chatRoomName}</h1>
     <div className="chatlist" ref={chatlistref} >
@@ -94,7 +96,7 @@ export default function Room() {
       setSendMessage('');
       socket.emit('uploadFiles', (thefile), id, s => {
         const blob = new Blob([new Uint8Array(s.img)], { type: 'image/png' });
-        const url = URL.createObjectURL(blob);
+        let url = URL.createObjectURL(blob);
       })
     }}>
       <input type="file" ref={fileref} onChange={e => {
