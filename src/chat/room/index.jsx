@@ -3,11 +3,10 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { io } from "socket.io-client";
 import * as S from './style';
-const url = "http://localhost:8888";
-// const url = 'http://10.53.68.222:8888';
+// const url = "http://localhost:8888";
+const url = 'http://192.168.1.87:8888';
 
 export default function Room() {
-  let socket = io.connect(url, { transports: ["websocket"] });
   let { id } = useParams();
   let chatlistref = useRef();
   let fileref = useRef();
@@ -15,7 +14,7 @@ export default function Room() {
   const [chatRoomName, setChatRoomName] = useState('');
   const [src, setSrc] = useState(null);
   const [chatlist, setChatlist] = useState([{}]);
-  const [uselesscnt, setUselesscnt] = useState(0);
+  let socket = io.connect(url, { transports: ["websocket"], reconnection: false });
   function send_message(message) {
     socket.emit('message', {
       clientId: JSON.parse(localStorage.getItem('logininfo')).nickname,
@@ -39,30 +38,26 @@ export default function Room() {
     return `${t.getFullYear()}. ${t.getMonth()}. ${t.getDay()}. ${t.getHours()}:${t.getMinutes()}`;
   }
   socket.on("received", data => {
-    let list = chatlist;
     if (data?.img) {
       const blob = new Blob([new Uint8Array(data?.img)], { type: 'image/png' });
-      data.img = URL.createObjectURL(blob);
+      data.img = window.URL.createObjectURL(blob);
     }
-    list?.push(data);
-    setChatlist(e => list);
+    setChatlist(e => [...e, data]);
     setTimeout(() => {
       chatlistref.current.scrollBy(0, chatlistref.current.scrollHeight);
     }, 300);
   });
   socket.on("new one", data => {
-    let list = chatlist;
-    list?.push({ newone: data });
-    setChatlist(e => list);
+    setChatlist(e => [...e, { newone: data }]);
     setTimeout(() => {
       chatlistref.current.scrollBy(0, chatlistref.current.scrollHeight);
     }, 300);
   })
   useEffect(e => {
     getRoomInfomation();
-    setInterval(() => {
-      setUselesscnt(e => e + 1);
-    }, 300);
+    return e => {
+      socket.disconnect();
+    }
     //eslint-disable-next-line
   }, []);
   return <S.Chat>
@@ -71,7 +66,7 @@ export default function Room() {
       {//eslint-disable-next-line
         chatlist?.map((i, n) => {
           if (n > 0) {
-            return <div>
+            return <div key={n}>
               {i?.clientId && <p id={n} key={n}>{time2date(i?.time)} {i?.clientId}: {i?.message}</p>}
               {i?.newone && <p>{i?.newone}</p>}
               {i?.img && <img src={i?.img} alt="img" />}
@@ -98,6 +93,7 @@ export default function Room() {
       socket.emit('uploadFiles', (thefile), id, s => {
         const blob = new Blob([new Uint8Array(s.img)], { type: 'image/png' });
         let url = URL.createObjectURL(blob);
+        console.log(url);
       })
     }}>
       <input type="file" ref={fileref} onChange={e => {
