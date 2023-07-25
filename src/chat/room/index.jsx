@@ -51,7 +51,10 @@ export default function Room() {
       {//eslint-disable-next-line
         chatlist?.map((i, n) => {
           if (n > 0) {
-            return <p id={n} key={n}>{time2date(i?.time)} {i?.clientId}: {i?.message}</p>
+            return <>
+              <p id={n} key={n}>{time2date(i?.time)} {i?.clientId}: {i?.message}</p>
+              { }
+            </>;
           }
         })}</div>
     <form onSubmit={e => {
@@ -69,8 +72,9 @@ export default function Room() {
     <form onSubmit={e => {
       e.preventDefault();
       const thefile = fileref.current.files[0];
-      send_message('');
-      socket.emit('uploadFiles', thefile, s => {
+      send_message(sendMessage);
+      setSendMessage('');
+      socket.emit('uploadFiles', (thefile), s => {
         const blob = new Blob([new Uint8Array(s.message)], { type: 'image/png' });
         const url = URL.createObjectURL(blob);
         setSrc(url);
