@@ -18,17 +18,18 @@ const connection = mysql.createConnection({
 io.on('connection', socket => {
   socket.on("join_room", data => {
     socket.join(data.room);
+    socket.to(data.room).emit("new one", `${data.clientId}님이 입장하셨습니다.`);
   });
   socket.on('message', (data) => {
-    // console.log(data);
     socket.to(data.room).emit("received", data);
   });
-  socket.on('uploadFiles', (file, callback) => {
+  socket.on('uploadFiles', (file, room, callback) => {
     writeFile("/tmp/upload", file, (err) => {
-      callback({ message: err ? "failure" : file });
+      callback({ img: err ? "failure" : file });
+      socket.to(room).emit("received", { img: file });
     });
   })
-})
+});
 
 connection.connect(err => {
   if (err) throw err;

@@ -1,6 +1,7 @@
 import { styled } from "styled-components";
 
 export const Chat = styled.div`
+  color: lightgray;
   button{
     border: 1px solid #d9d9d9;
     background-color: white;

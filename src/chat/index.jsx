@@ -41,6 +41,7 @@ export default function Chat(e) {
   }
   useEffect(e => {
     document.title = 'chat';
+    document.body.style.backgroundColor = "#121212";
     if (JSON.parse(localStorage.getItem('logininfo'))?.refreshToken) {
       setRefreshTokenAvailable(true);
     }

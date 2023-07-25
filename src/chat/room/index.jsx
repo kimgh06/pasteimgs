@@ -29,8 +29,9 @@ export default function Room() {
     await axios.get(`${url}/chat/getroominfo?id=${id}`)
       .then(e => {
         setChatRoomName(e.data);
-        document.title = `${e.data}`
-        socket.emit('join_room', { room: id });
+        document.title = `${e.data}`;
+        document.body.style.backgroundColor = "#121212";
+        socket.emit('join_room', { room: id, clientId: JSON.parse(localStorage.getItem('logininfo')).nickname });
       });
   }
   function time2date(time) {
@@ -39,9 +40,18 @@ export default function Room() {
   }
   socket.on("received", data => {
     let list = chatlist;
+    if (data?.img) {
+      const blob = new Blob([new Uint8Array(data?.img)], { type: 'image/png' });
+      data.img = URL.createObjectURL(blob);
+    }
     list?.push(data);
     setChatlist(e => list);
   });
+  socket.on("new one", data => {
+    let list = chatlist;
+    list?.push({ newone: data });
+    setChatlist(e => list);
+  })
   useEffect(e => {
     getRoomInfomation();
     setInterval(() => {
@@ -58,7 +68,11 @@ export default function Room() {
       {//eslint-disable-next-line
         chatlist?.map((i, n) => {
           if (n > 0) {
-            return <p id={n} key={n}>{time2date(i?.time)} {i?.clientId}: {i?.message}</p>
+            return <div>
+              {i?.clientId && <p id={n} key={n}>{time2date(i?.time)} {i?.clientId}: {i?.message}</p>}
+              {i?.newone && <p>{i?.newone}</p>}
+              {i?.img && <img src={i?.img} alt="img" />}
+            </div>;
           }
         })}</div>
     <form onSubmit={e => {
@@ -75,15 +89,23 @@ export default function Room() {
     <form onSubmit={e => {
       e.preventDefault();
       const thefile = fileref.current.files[0];
+      console.log(thefile)
       send_message(sendMessage);
       setSendMessage('');
-      socket.emit('uploadFiles', (thefile), s => {
-        const blob = new Blob([new Uint8Array(s.message)], { type: 'image/png' });
+      socket.emit('uploadFiles', (thefile), id, s => {
+        const blob = new Blob([new Uint8Array(s.img)], { type: 'image/png' });
         const url = URL.createObjectURL(blob);
-        setSrc(url);
       })
     }}>
-      <input type="file" ref={fileref} />
+      <input type="file" ref={fileref} onChange={e => {
+        if (fileref.current.files[0]) {
+          let reader = new FileReader();
+          reader.onload = e => {
+            setSrc(e.target.result);
+          }
+          reader.readAsDataURL(fileref.current.files[0]);
+        }
+      }} />
       <button>보내기</button>
     </form>
     <img src={src} alt="img" />

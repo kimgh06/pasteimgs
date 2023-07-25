@@ -1,6 +1,7 @@
 import { styled } from "styled-components";
 
 export const Chat = styled.div`
+    color: lightgray;
   .chatlist{
     height: 300px;
     width: 500px;
