@@ -45,13 +45,13 @@ export default function Room() {
     setChatlist(e => [...e, data]);
     setTimeout(() => {
       chatlistref.current.scrollBy(0, chatlistref.current.scrollHeight);
-    }, 300);
+    }, 10);
   });
   socket.on("new one", data => {
     setChatlist(e => [...e, { newone: data }]);
     setTimeout(() => {
       chatlistref.current.scrollBy(0, chatlistref.current.scrollHeight);
-    }, 300);
+    }, 10);
   })
   useEffect(e => {
     getRoomInfomation();
