@@ -3,7 +3,7 @@ import { styled } from "styled-components";
 export const Chat = styled.div`
     color: lightgray;
   .chatlist{
-    height: 300px;
+    height: 400px;
     width: 500px;
     overflow-y: scroll;
     p{

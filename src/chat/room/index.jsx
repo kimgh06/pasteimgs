@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { io } from "socket.io-client";
 import * as S from './style';
-// const url = "http://localhost:8888";
-const url = 'http://192.168.1.87:8888';
+const url = "http://localhost:8888";
+// const url = 'http://192.168.1.10:8888';
 
 export default function Room() {
   let { id } = useParams();
@@ -18,7 +18,7 @@ export default function Room() {
   function send_message(message) {
     socket.emit('message', {
       clientId: JSON.parse(localStorage.getItem('logininfo')).nickname,
-      time: Math.floor(new Date().getTime() / 1000 / 60),
+      time: Math.floor(new Date().getTime()),
       message: message,
       room: id
     });
@@ -34,8 +34,8 @@ export default function Room() {
       });
   }
   function time2date(time) {
-    let t = new Date(time * 60000);
-    return `${t.getFullYear()}. ${t.getMonth()}. ${t.getDay()}. ${t.getHours()}:${t.getMinutes()}`;
+    let t = new Date(time);
+    return `${t.getFullYear()}. ${t.getMonth()}. ${t.getDay()}. ${t.getHours()}:${t.getMinutes()}:${t.getSeconds()}`;
   }
   socket.on("received", data => {
     if (data?.img) {
@@ -79,7 +79,7 @@ export default function Room() {
         send_message(sendMessage);
       }
     }}>
-      <input onChange={e => {
+      <input autoFocus={true} onChange={e => {
         setSendMessage(e.target.value);
       }} value={sendMessage} />
       <button>메시지 보내기</button>
@@ -87,14 +87,11 @@ export default function Room() {
     <form onSubmit={e => {
       e.preventDefault();
       const thefile = fileref.current.files[0];
-      console.log(thefile)
       send_message(sendMessage);
       setSendMessage('');
-      socket.emit('uploadFiles', (thefile), id, s => {
-        const blob = new Blob([new Uint8Array(s.img)], { type: 'image/png' });
-        let url = URL.createObjectURL(blob);
-        console.log(url);
-      })
+      socket.emit('uploadFiles', (thefile), id);
+      fileref.current.value = null;
+      setSrc(null);
     }}>
       <input type="file" ref={fileref} onChange={e => {
         if (fileref.current.files[0]) {
@@ -107,6 +104,6 @@ export default function Room() {
       }} />
       <button>보내기</button>
     </form>
-    <img src={src} alt="img" />
+    {src && <img src={src} alt="img" />}
   </S.Chat >;
 }

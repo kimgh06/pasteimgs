@@ -23,9 +23,8 @@ io.on('connection', socket => {
   socket.on('message', (data) => {
     socket.to(data.room).emit("received", data);
   });
-  socket.on('uploadFiles', (file, room, callback) => {
+  socket.on('uploadFiles', (file, room) => {
     writeFile("/tmp/upload", file, (err) => {
-      callback({ img: err ? "failure" : file });
       socket.to(room).emit("received", { img: file });
     });
   })

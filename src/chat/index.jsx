@@ -2,8 +2,8 @@ import { useEffect, useState } from "react"
 import * as S from "./style";
 import axios from "axios";
 import { Link } from "react-router-dom";
-// const url = "http://localhost:8888";
-const url = 'http://192.168.1.87:8888';
+const url = "http://localhost:8888";
+// const url = 'http://192.168.1.10:8888';
 
 export default function Chat(e) {
   const [toput, setToput] = useState('');
@@ -128,7 +128,7 @@ export default function Chat(e) {
     }}>
       <input onChange={e => setLogininfo(a => ({ ...a, nickname: e.target.value }))} placeholder="로그인 닉네임" />
       <input onChange={e => setLogininfo(a => ({ ...a, pw: e.target.value }))} placeholder="로그인 비밀번호" />
-      <button>토큰 발급</button>
+      <button>로그인</button>
     </form>
 
     <form className="checkAccessToken" onSubmit={async e => {
