@@ -85,9 +85,11 @@ export default function Chat(e) {
       e.preventDefault();
       await axios.post(`${url}/chat/signup`, { nickname: signupinfo.nickname, pw: signupinfo.pw })
         .then(e => {
-          console.log(e.data);
+          alert(e?.data.message)
         })
-        .catch(e => console.log(e));
+        .catch(e => {
+          alert(e?.message)
+        });
     }}>
       <input onChange={e => setSignupinfo(a => ({ ...a, nickname: e.target.value }))} placeholder="회원가입 닉네임" />
       <input onChange={e => setSignupinfo(a => ({ ...a, pw: e.target.value }))} placeholder="회원가입 비밀번호" />
@@ -118,6 +120,7 @@ export default function Chat(e) {
                 setAccessTokenAvailable(false);
                 setRefreshTokenAvailable(false);
                 setAreheretokens(true);
+                alert("로그인 완료")
               }
             }).catch(e => {
               console.log(e);
@@ -188,7 +191,7 @@ export default function Chat(e) {
         </tr>
       </thead>
       <tbody>
-        {rooms.map((i, n) => <tr key={n}><td><Link to={`/chat/${i?.chatroomid}`}>{i?.chatroomid}</Link></td><td>{i?.roomname}</td></tr>)}
+        {rooms.map((i, n) => <tr key={n}><td><Link to={`/chat/${i?.chatroomid}`}>{i?.roomname}</Link></td></tr>)}
       </tbody>
     </table>
 
